@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -114,6 +115,8 @@ Route::get('add_row',function(Request $request) {
 		$output="''";
 		exec($command_make_user,$output);
 		Log::info('make maildir output',array($output));
+		exec("chown vmail:vmail /home/vmail/$domain/$username",$output);
+		Log::info("chown",array($output));
 	}
 	return response()->json(['entity' => $entity, 'row' =>  $new_row]);
 	//return response()->make($sql);
