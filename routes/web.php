@@ -101,7 +101,7 @@ Route::get('add_row',function(Request $request) {
 
 	if ($entity == 'domains') {
 		$domain = $new_row['domain'];
-		$command_make_domain = "sudo -u www-data mkdir -p /home/vmail/$domain";
+		$command_make_domain = "sudo -u vmail mkdir -p /home/vmail/$domain";
 		Log::debug('command to make new domain dir:',array($command_make_domain));
 		exec($command_make_domain,$output);
 		Log::debug('make dir output:',array($output) );
@@ -110,12 +110,12 @@ Route::get('add_row',function(Request $request) {
 		$tokens = preg_split('/@/',$email);
 		$username = $tokens[0];
 		$domain = $tokens[1];
-		$command_make_user = "sudo -u www-data maildirmake /home/vmail/$domain/$username";
+		$command_make_user = "sudo -u vmail maildirmake /home/vmail/$domain/$username";
 		Log::debug('command to make new maildir:',array($command_make_user));
 		$output="''";
 		exec($command_make_user,$output);
 		Log::info('make maildir output',array($output));
-		exec("chown vmail:vmail /home/vmail/$domain/$username",$output);
+		exec("sudo -u vmail chown vmail:vmail /home/vmail/$domain/$username",$output);
 		Log::info("chown",array($output));
 	}
 	return response()->json(['entity' => $entity, 'row' =>  $new_row]);
