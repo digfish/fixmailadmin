@@ -18,3 +18,8 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
+AuthType Basic
+AuthName "Restricted Area"
+AuthBasicProvider file
+AuthUserFile "/var/www/fixmailadmin/.htpasswd"
+Require user admin

@@ -23,3 +23,5 @@ bootstrap/cache/
 Homestead.json
 Homestead.yaml
 npm-debug.log
+.htpasswd
+public/.htaccess

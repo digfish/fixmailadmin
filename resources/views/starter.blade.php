@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Starter Template for Bootstrap</title>
+    <title>Postfix Virtual Mail Domains Manager</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/app.css" rel="stylesheet">
@@ -25,13 +25,19 @@
       table.table tr.selected {
         background-color: yellow;
       }
+
+      table.table th {
+        text-align: center;
+        font-size: 1.1em;
+      }
+
     </style>
 
 
     <script type="x-tmpl-mustache" id="template-table">
 
 
-<table class="table table-hover">
+<table class="table table-condensed table-bordered table-hover">
   <tr id="head-model">
    <%#fields%>
     <th><%field%></th>
@@ -85,7 +91,7 @@
     <div role="tabpanel" class="tab-pane active" id="domains">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-hover">
+          <table class="table table-condensed table-bordered table-hover">
             <tr>
             <th>domain</th>
             </tr>
@@ -104,7 +110,7 @@
     <div role="tabpanel" class="tab-pane" id="users">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-hover">
+          <table class="table table-condensed table-bordered table-hover">
             <tr>
             <th>email</th>
             <th>password</th>
@@ -126,7 +132,7 @@
     <div role="tabpanel" class="tab-pane" id="forwardings">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-hover">
+          <table class="table table-condensed table-bordered table-hover">
             <tr>
             <th>source</th>
             <th>destination</th>
@@ -147,7 +153,7 @@
     <div role="tabpanel" class="tab-pane" id="transport">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-hover">
+          <table class="table table-condensed table-bordered table-hover">
             <tr>
             <th>domain</th>
             <th>transport</th>
