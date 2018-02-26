@@ -31,3 +31,4 @@ public/.htaccess
 public/adminer.php
 public/dbadmin.php
 *.lock
+*.htaccess*

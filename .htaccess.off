@@ -1,7 +1,0 @@
-AuthType Basic
-AuthName "Restricted Area"
-# (Following line optional)
-AuthBasicProvider file
-AuthUserFile ".htpasswd"
-Require user admin
-
