@@ -30,3 +30,4 @@ npm-debug.log
 public/.htaccess
 public/adminer.php
 public/dbadmin.php
+*.lock
