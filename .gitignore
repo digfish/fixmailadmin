@@ -1,3 +1,4 @@
+dbadmin/
 vendor/
 node_modules/
 bower_components/
@@ -9,15 +10,17 @@ app/storage/
 
 # Laravel 5 & Lumen specific
 bootstrap/cache/
-.env.*.php
-.env.php
 .env
+.env.*
+
 
 # Rocketeer PHP task runner and deployment package. https://github.com/rocketeers/rocketeer
 .rocketeer/
+utils/php-shellexec
 
+composer.lock
 /public/storage
-/storage/*.key
+/storage/
 /vendor
 /.idea
 Homestead.json
@@ -25,3 +28,5 @@ Homestead.yaml
 npm-debug.log
 .htpasswd
 public/.htaccess
+public/adminer.php
+public/dbadmin.php

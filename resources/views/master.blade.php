@@ -186,9 +186,9 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/javascript"  src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript">window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
-
+{{--     <script type="text/javascript"  src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+     <script type="text/javascript">window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+--}}
     <script type="text/javascript" src="js/app.js"></script>
     <script type="text/javascript" src="js/all.js"></script>
 
@@ -234,13 +234,29 @@
 
     $(document).ready(function() {
 
-      $table = $('table:visible');
-
+      if ($table == undefined) {
+        correctGlobals();
+      }
 
 
       refreshGlobals();
+
+      url = window.location.href;
+
+      $("[href='"+ window.location.hash +"'").trigger('click');
       
-      setInterval(refreshGlobals,1000);
+      setInterval(refreshGlobals,500);
+
+      function correctGlobals() {
+
+          $table = $('table:visible');
+
+          if ( last_row_id == undefined || last_row_id.toString() == 'NaN' ) {
+              last_row_id = $table.find('tr td').length;
+              $table.attr('last_row_id',last_row_id);
+          }
+
+      }
 
       function refreshGlobals() {
 
@@ -262,46 +278,53 @@
       };
 
 
-
       // when changing tab (called after some timeout has passed)
       $('.nav a').click(  function(evt) {
         a_elem = this;
-        postpone(new DelayedFunction (a_elem,function () { 
+        postpone(new DelayedFunction (a_elem,function () {
+          correctGlobals();
+          tab_name = $(this.a_elem).attr('href'); 
+          window.location.hash = tab_name ;
           $table = $('table:visible');
           console.log('this.a_elem',this.a_elem);
-          console.log('changed to tab' + $(this.a_elem).attr('href').substring(0) ); 
+          console.log('changed to tab: ' + tab_name.substring(0) ); 
           $head_row = $table.find('tr').first();
           $head_names = $head_row.find('th').map(function(i,th) { return $(th).text() });
-          console.log('=>head_names',$head_names);
+          console.log('=>head_names : ',$head_names);
+          last_row_id = $table.attr('last_row_id');
+          console.log('new last_row_id: ', last_row_id);
        }));
      });
 
       // actions over rows - click, double click and  pressing keys
       $(document).on('click','table tr',{},function(evt) {
-        console.log('CLICKED on elem:',evt.target);
+        console.log('CLICKED on: ',evt.target);
         if ($(evt.target).parents('tr').hasClass('selected')) {
           $('.selected').removeClass('selected');
         } else {
           $('.selected').removeClass('selected');
           $(evt.target).parents('tr').addClass('selected');
         }
-        console.log('selected',$('.selected').text());
+        console.log('selected: ',$('.selected').text());
       })
 
       $(document).on('dblclick','table tr',{},function(event) {
-        /* Act on the event */
         event.preventDefault();
-        console.log("DOUBLE clicked on", event.target);
-        $(event.target).parents('tr').children('td').each(function(i,td) {
-          val = $(td).text();
-          $(td).html("<INPUT type='text' name='"+ $head_names[i] +"' value='"+val+"'/>");
+        console.log("DOUBLE clicked on ", event.target);
+        $(event.target).parents('tr').children('td').each(
+          function(i,td) {
+            val = $(td).text();
+            $(td).html("<INPUT type='text' name='"+ $head_names[i] +"' value='"+val+"'/>");
         });
       });
 
       $(document).on('keyup','table tr',{},function(event) {
         event.preventDefault();
         key = event.originalEvent.code;
-        console.log('+++ PRESSED ',key);
+       
+        console.log('tr key PRESSED: ',key);
+        console.log('on ',event.target);
+        
         if ( key == 'Enter') {
           $row_inputs = $(event.target).parents('tr').find('input');
           updated_row = new Object();
@@ -311,22 +334,29 @@
             updated_row[ key ] = val;
           });
 
-          console.log('updated row:',updated_row);
+          console.log('updated row: ',updated_row);
 
+          isNew = $(event.target).parents('tr').attr('new') ;
+
+          if (isNew == '1') {
+            console.log('New record! Pressing add row button!');
+            $('#save_row').trigger('click'); 
+          } else {
           $.get('/update_row',
             {entity: selected_entity, row: updated_row},
             function(resp) {
-              console.log('response to updated row:',resp);
+              console.log('response to updated row: ',resp);
               revertRowEditing();
             });
+          }
         } 
 
       });
 
       $('table').on('keyup','input[type=text]',function(evt) {
         key = evt.originalEvent.code;
-        console.log('!!!!keypress on selected/new row!!!!',key);
-        console.log('ON',evt.target);
+        console.log('INPUT key: ',key );
+        console.log('ON: ',evt.target);
         input = evt.target;
         if (key == 'Escape') {
           console.log('Cancelling editing row!');
@@ -337,7 +367,7 @@
       function revertRowEditing(input) {
         console.log('reverting edit');
         $parent_tr = $(input).parents('tr');
-        console.log('$parent_tr',$parent_tr,$parent_tr.hasClass('new_row'));
+        console.log('parent table row: ',$parent_tr,$parent_tr.hasClass('new_row'));
         if ($parent_tr.hasClass('new_row')) {
           console.log('deleting new_row!');
           $parent_tr.remove();
@@ -362,17 +392,30 @@
           })
       });
 
-
+      // what to do when clicking in 'ADD ROW'
       $('#add_row').click(function(evt) {
 
         evt.preventDefault();
-        if ( last_row_id == undefined || last_row_id.toString() == 'NaN' ) {
-          last_row_id = 0;
+
+        console.log('last_row_id = ' + last_row_id);
+
+        
+        $new_row = null;
+
+        if (last_row_id != 0) {
+          $last_row = $table.find('tr').last();
+          $new_row = $last_row.clone();
+        } else {
+          console.log("No last row found! Creating a new one...");
+          new_cols = $table.find('th').length;
+          $new_row = $('<tr>');
+          for (i=0; i < new_cols; i++) {
+            $new_row.append('<td>&nbsp</td>');
+          }
         }
 
-        $last_row = $table.find('tr').last();
+        $new_row.attr('new','1');
 
-        $new_row = $last_row.clone();
         console.log('new_row',$new_row);
 
         $new_row.find('td').each(function(i,td) {
@@ -436,7 +479,11 @@
           '/add_row',
            {entity: selected_entity, row: new_row },
             function (json) {
-              console.log('response',json);
+              console.log('add row response');
+              console.log(json);
+              if (json.hasOwnProperty('error')) {
+                $last_tr.css('background-color','red');
+              }
               $last_tr.find('input').each(function(i,input) {
                   $(input).replaceWith( $(this).val() );
                } );

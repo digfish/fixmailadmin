@@ -18,8 +18,9 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
-AuthType Basic
-AuthName "Restricted Area"
-AuthBasicProvider file
-AuthUserFile ""
-Require user admin
+
+# AuthType Basic
+# AuthName "Restricted Area"
+# AuthBasicProvider file
+# AuthUserFile ""
+# Require user admin

@@ -9,12 +9,13 @@
         "laravel/framework": "5.3.*",
         "php-console/laravel-service-provider": "~5.0",
         "php-console/php-console": "^3.1",
+        "phpseclib/phpseclib": "~2.0",
+        "reliese/laravel": "^0.0.13",
         "teepluss/console": "^2.0",
         "twbs/bootstrap": "^3.3"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
-        "ignasbernotas/laravel-model-generator": "^1.1",
         "mockery/mockery": "0.9.*",
         "phpunit/phpunit": "~5.0",
         "symfony/css-selector": "3.1.*",
