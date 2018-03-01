@@ -26,6 +26,14 @@
         background-color: yellow;
       }
 
+      table.table tr.error {
+        background-color: red;
+      }
+
+      table.table tr.success {
+        background-color: green;
+      }
+
       table.table th {
         text-align: center;
         font-size: 1.1em;
@@ -91,7 +99,7 @@
     <div role="tabpanel" class="tab-pane active" id="domains">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-condensed table-bordered table-hover">
+          <table id="domains" class="table table-condensed table-bordered table-hover">
             <tr>
             <th>domain</th>
             </tr>
@@ -110,7 +118,7 @@
     <div role="tabpanel" class="tab-pane" id="users">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-condensed table-bordered table-hover">
+          <table id="users" class="table table-condensed table-bordered table-hover">
             <tr>
             <th>email</th>
             <th>password</th>
@@ -132,7 +140,7 @@
     <div role="tabpanel" class="tab-pane" id="forwardings">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-condensed table-bordered table-hover">
+          <table id="forwardings" class="table table-condensed table-bordered table-hover">
             <tr>
             <th>source</th>
             <th>destination</th>
@@ -153,7 +161,7 @@
     <div role="tabpanel" class="tab-pane" id="transport">
       <div class="row">
         <div class="col-md-8">
-          <table class="table table-condensed table-bordered table-hover">
+          <table id="transports" class="table table-condensed table-bordered table-hover">
             <tr>
             <th>domain</th>
             <th>transport</th>
@@ -234,24 +242,25 @@
 
     $(document).ready(function() {
 
-      if ($table == undefined) {
+/*      if ($table == undefined) {
         correctGlobals();
       }
 
 
       refreshGlobals();
-
+*/
       url = window.location.href;
 
       $("[href='"+ window.location.hash +"'").trigger('click');
       
-      setInterval(refreshGlobals,500);
+      //setInterval(refreshGlobals,500);
 
       function correctGlobals() {
 
+          console.log('>correctGlobals()!');
           $table = $('table:visible');
 
-          if ( last_row_id == undefined || last_row_id.toString() == 'NaN' ) {
+          if ( !last_row_id || last_row_id.toString() == 'NaN' ) {
               last_row_id = $table.find('tr td').length;
               $table.attr('last_row_id',last_row_id);
           }
@@ -261,11 +270,13 @@
       function refreshGlobals() {
 
   //      console.log('$table',$table);
-        last_row_id =  parseInt($table.attr('last_row_id'));
-
+        lri_attr = parseInt($table.attr('last_row_id'));
+        if (lri_attr && lri_attr.length != 0) {
+          last_row_id =  parseInt($table.attr('last_row_id'));
+        }
         selected_entity = $('.active a').attr('href').substring(1).trim();
  //       console.log('existing last_row_id:',last_row_id);
-        if ( last_row_id.toString() == 'NaN' || last_row_id == 0) {
+        if ( last_row_id  && ( last_row_id.toString() == 'NaN' || last_row_id == 0 ) )  {
           $('#save_row').hide();
         } else {
           $('#save_row').show();
@@ -282,22 +293,24 @@
       $('.nav a').click(  function(evt) {
         a_elem = this;
         postpone(new DelayedFunction (a_elem,function () {
-          correctGlobals();
+          refreshGlobals();
           tab_name = $(this.a_elem).attr('href'); 
           window.location.hash = tab_name ;
           $table = $('table:visible');
-          console.log('this.a_elem',this.a_elem);
+          //console.log('this.a_elem ',this.a_elem);
           console.log('changed to tab: ' + tab_name.substring(0) ); 
           $head_row = $table.find('tr').first();
           $head_names = $head_row.find('th').map(function(i,th) { return $(th).text() });
           console.log('=>head_names : ',$head_names);
-          last_row_id = $table.attr('last_row_id');
+          //last_row_id = $table.attr('last_row_id');
+          last_row_id = $table.find('tr').length;
+          $table.attr('last_row_id',last_row_id);          
           console.log('new last_row_id: ', last_row_id);
        }));
      });
 
       // actions over rows - click, double click and  pressing keys
-      $(document).on('click','table tr',{},function(evt) {
+      $(document).on('click','table tr td',{},function(evt) {
         console.log('CLICKED on: ',evt.target);
         if ($(evt.target).parents('tr').hasClass('selected')) {
           $('.selected').removeClass('selected');
@@ -320,12 +333,18 @@
 
       $(document).on('keyup','table tr',{},function(event) {
         event.preventDefault();
+
         key = event.originalEvent.code;
        
         console.log('tr key PRESSED: ',key);
         console.log('on ',event.target);
-        
-        if ( key == 'Enter') {
+
+
+        if (key == 'Escape') {
+          console.log('Cancelling editing row!');
+          revertRowEditing(event.target);
+        }        
+        else if ( key == 'Enter') {
           $row_inputs = $(event.target).parents('tr').find('input');
           updated_row = new Object();
           $row_inputs.each(function(i,input) {
@@ -353,17 +372,13 @@
 
       });
 
-      $('table').on('keyup','input[type=text]',function(evt) {
-        key = evt.originalEvent.code;
-        console.log('INPUT key: ',key );
-        console.log('ON: ',evt.target);
+/*      $(document).on('mouseleave','table',{},function(evt) {
+        console.log('BLUR ON: ',evt.target);
         input = evt.target;
-        if (key == 'Escape') {
-          console.log('Cancelling editing row!');
-          revertRowEditing(input);
-        }
+        console.log('Cancelling editing row!');
+        revertRowEditing(input);
       });
-
+*/
       function revertRowEditing(input) {
         console.log('reverting edit');
         $parent_tr = $(input).parents('tr');
@@ -429,7 +444,7 @@
         last_row_id ++;
         $new_row.attr( 'id','row' + last_row_id );
         $table.append( $new_row );
-        console.log( 'last row_id' ,last_row_id );
+        console.log( 'AFTER adding row last row_id' ,last_row_id );
         $table.attr('last_row_id',new String(last_row_id));
 
       });
@@ -482,7 +497,9 @@
               console.log('add row response');
               console.log(json);
               if (json.hasOwnProperty('error')) {
-                $last_tr.css('background-color','red');
+                $last_tr.addClass('error');
+              } else {
+                $last_tr.addClass('success');
               }
               $last_tr.find('input').each(function(i,input) {
                   $(input).replaceWith( $(this).val() );
@@ -490,8 +507,12 @@
             });
       });
 
+      $('tr.success').blur(function(evt) {
+        $(this).removeClass('success');
+      });
 
-    });
+
+    }); // end of document.ready()
     </script>
 
   </body>
