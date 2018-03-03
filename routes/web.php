@@ -166,14 +166,15 @@ Route::get('add_row', function (Request $request)
         $new_dir_for_user  = "/home/vmail/$domain/$username";
 
         // not using command maildirmake anymore, since php can do this
-/*        $command_make_user = "maildirmake $new_dir_for_user";
+        $su_exec_binary = env('SU_EXEC_BINARY');
+        $command_make_user = "$su_exec_binary maildirmake $new_dir_for_user";
         Log::debug('command to make new maildir:', array($command_make_user));
         $output = "''";
         exec($command_make_user, $output);
         Log::info('make maildir output', array($output));
-*/       
+       
 
-        maildirmake($new_dir_for_user);
+        // maildirmake($new_dir_for_user); using PHP, not working on production !!!!!
         if (!file_exists($new_dir_for_user))
         {
             DB::rollback();
