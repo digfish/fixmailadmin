@@ -165,7 +165,8 @@ Route::get('add_row', function (Request $request)
         $domain            = $tokens[1];
         $new_dir_for_user  = "/home/vmail/$domain/$username";
 
-        // not using command maildirmake anymore, since php can do this
+        // create maildir using the shell `maildirmake` command
+
         $su_exec_binary = env('SU_EXEC_BINARY');
         $command_make_user = "$su_exec_binary maildirmake $new_dir_for_user";
         Log::debug('command to make new maildir:', array($command_make_user));
@@ -173,7 +174,8 @@ Route::get('add_row', function (Request $request)
         exec($command_make_user, $output);
         Log::info('make maildir output', array($output));
        
-
+        // ** not using ** the maildirmake implemented through PHP, is getting errors !
+        
         // maildirmake($new_dir_for_user); using PHP, not working on production !!!!!
         if (!file_exists($new_dir_for_user))
         {
